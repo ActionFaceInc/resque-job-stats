@@ -1,6 +1,6 @@
-# encoding: utf-8
+# frozen_string_literal: true
 
-require "bundler/gem_tasks"
+require 'bundler/gem_tasks'
 
 require 'rake'
 require 'rake/testtask'
@@ -13,7 +13,7 @@ Rake::TestTask.new(:test) do |test|
   test.verbose = true
 end
 
-task :default => :test
+task default: :test
 
 require 'rdoc/task'
 Rake::RDocTask.new do |rdoc|

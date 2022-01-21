@@ -1,11 +1,13 @@
+# frozen_string_literal: true
+
 require './job'
 require 'resque'
 require 'redis'
-require "resque/tasks"
+require 'resque/tasks'
 
-Resque.redis = Redis.new 
+Resque.redis = Redis.new
 
-desc "Enqueue successful job"
+desc 'Enqueue successful job'
 task :enqueue_success do
   count = ENV['SUCCESS_JOBS'] || 1
   count.to_i.times do
@@ -13,7 +15,7 @@ task :enqueue_success do
   end
 end
 
-desc "Enqueue failing job"
+desc 'Enqueue failing job'
 task :enqueue_failure do
   count = ENV['FAILURE_JOBS'] || 1
   count.to_i.times do

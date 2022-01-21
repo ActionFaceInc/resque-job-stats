@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'minitest/autorun'
 require 'minitest/unit'
 require 'minitest/mock'
@@ -11,4 +13,3 @@ Resque.redis.namespace = 'resque:job_stats'
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 require 'resque-job-stats'
-

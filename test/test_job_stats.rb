@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'helper'
 
 class BaseJob
   @queue = :test
 
-  def self.perform(sleep_time=0.01)
+  def self.perform(sleep_time = 0.01)
     sleep sleep_time
   end
 end
@@ -18,7 +20,7 @@ class FailJob < BaseJob
   extend Resque::Plugins::JobStats::History
   @queue = :test
 
-  def self.perform(*args)
+  def self.perform(*_args)
     raise 'fail'
   end
 end
@@ -36,7 +38,6 @@ class CustomHistJob < BaseJob
 end
 
 class TestResqueJobStats < MiniTest::Unit::TestCase
-
   def setup
     # Ensure empty redis for each test
     Resque.redis.flushdb
@@ -46,7 +47,7 @@ class TestResqueJobStats < MiniTest::Unit::TestCase
   def test_lint
     Resque::Plugin.lint(Resque::Plugins::JobStats)
     assert_equal true, true
-  rescue => e
+  rescue StandardError => e
     assert_equal false, e
   end
 
@@ -87,8 +88,8 @@ class TestResqueJobStats < MiniTest::Unit::TestCase
     assert_equal 0.0, SimpleJob.longest_job
 
     3.times do |i|
-      d = (i + 1)/10.0
-      Resque.enqueue(SimpleJob,d)
+      d = (i + 1) / 10.0
+      Resque.enqueue(SimpleJob, d)
       @worker.work(0)
     end
 
@@ -103,12 +104,12 @@ class TestResqueJobStats < MiniTest::Unit::TestCase
     CustomDurJob.reset_job_durations
 
     2.times do
-      Resque.enqueue(CustomDurJob,1.0)
+      Resque.enqueue(CustomDurJob, 1.0)
       @worker.work(0)
     end
 
     5.times do
-      Resque.enqueue(CustomDurJob,0.1)
+      Resque.enqueue(CustomDurJob, 0.1)
       @worker.work(0)
     end
 
@@ -132,7 +133,7 @@ class TestResqueJobStats < MiniTest::Unit::TestCase
   def test_enqueue_timeseries
     time = SimpleJob.timestamp
     Timecop.freeze(time)
-    Resque.enqueue(SimpleJob,0)
+    Resque.enqueue(SimpleJob, 0)
     Timecop.freeze(time + 60)
     @worker.work(0)
     assert_equal 1, SimpleJob.queued_per_minute[time]
@@ -152,44 +153,44 @@ class TestResqueJobStats < MiniTest::Unit::TestCase
     assert_equal 0, SimpleJob.histories_recorded
 
     3.times do |i|
-      d = (i + 1)/10.0
-      Resque.enqueue(SimpleJob,d)
+      d = (i + 1) / 10.0
+      Resque.enqueue(SimpleJob, d)
       @worker.work(0)
     end
 
     assert_equal 3, SimpleJob.job_histories.count
     assert_equal 3, SimpleJob.histories_recorded
-    assert_equal 1, SimpleJob.job_histories(1,1).count
+    assert_equal 1, SimpleJob.job_histories(1, 1).count
 
-    assert SimpleJob.job_histories[0]["success"]
-    assert_in_delta 0.3, SimpleJob.job_histories[0]["args"][0], 0.01
-    assert_in_delta 0.3, SimpleJob.job_histories[0]["duration"], 0.01
+    assert SimpleJob.job_histories[0]['success']
+    assert_in_delta 0.3, SimpleJob.job_histories[0]['args'][0], 0.01
+    assert_in_delta 0.3, SimpleJob.job_histories[0]['duration'], 0.01
 
-    assert SimpleJob.job_histories[1]["success"]
-    assert_in_delta 0.2, SimpleJob.job_histories[1]["args"][0], 0.01
-    assert_in_delta 0.2, SimpleJob.job_histories[1]["duration"], 0.01
+    assert SimpleJob.job_histories[1]['success']
+    assert_in_delta 0.2, SimpleJob.job_histories[1]['args'][0], 0.01
+    assert_in_delta 0.2, SimpleJob.job_histories[1]['duration'], 0.01
 
-    assert SimpleJob.job_histories[2]["success"]
-    assert_in_delta 0.1, SimpleJob.job_histories[2]["args"][0], 0.01
-    assert_in_delta 0.1, SimpleJob.job_histories[2]["duration"], 0.01
+    assert SimpleJob.job_histories[2]['success']
+    assert_in_delta 0.1, SimpleJob.job_histories[2]['args'][0], 0.01
+    assert_in_delta 0.1, SimpleJob.job_histories[2]['duration'], 0.01
   end
 
   def test_custom_history
     CustomHistJob.reset_job_histories
 
     2.times do
-      Resque.enqueue(CustomHistJob,1.0)
+      Resque.enqueue(CustomHistJob, 1.0)
       @worker.work(0)
     end
 
     5.times do
-      Resque.enqueue(CustomHistJob,0.1)
+      Resque.enqueue(CustomHistJob, 0.1)
       @worker.work(0)
     end
 
     assert_equal 5, CustomHistJob.job_histories.count
-    assert_in_delta 0.1, CustomHistJob.job_histories.first["args"][0], 0.01
-    assert_in_delta 0.1, CustomHistJob.job_histories.last["args"][0], 0.01
+    assert_in_delta 0.1, CustomHistJob.job_histories.first['args'][0], 0.01
+    assert_in_delta 0.1, CustomHistJob.job_histories.last['args'][0], 0.01
   end
 
   def test_failure_history
@@ -201,8 +202,8 @@ class TestResqueJobStats < MiniTest::Unit::TestCase
     end
 
     assert_equal 2, FailJob.job_histories.count
-    assert_equal 0, FailJob.job_histories.first["args"].count
-    assert ! FailJob.job_histories.first["success"]
-    assert_equal "fail", FailJob.job_histories.first["exception"]["name"]
+    assert_equal 0, FailJob.job_histories.first['args'].count
+    assert !FailJob.job_histories.first['success']
+    assert_equal 'fail', FailJob.job_histories.first['exception']['name']
   end
 end

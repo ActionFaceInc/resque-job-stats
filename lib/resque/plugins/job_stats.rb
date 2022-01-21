@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'resque'
 require 'resque/plugins/job_stats/performed'
 require 'resque/plugins/job_stats/enqueued'
@@ -19,7 +21,7 @@ module Resque
       include Resque::Plugins::JobStats::History
 
       def self.extended(base)
-        self.measured_jobs << base
+        measured_jobs << base
       end
 
       def self.measured_jobs

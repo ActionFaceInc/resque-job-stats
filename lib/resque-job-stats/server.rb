@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'resque/server'
 
 module Resque
@@ -25,28 +27,26 @@ module Resque
           end
 
           def time_display(float)
-            float.zero? ? "" : ("%.2f" % float.to_s) + "s"
+            float.zero? ? '' : ('%.2f' % float.to_s) + 's'
           end
 
           def number_display(num)
-            num.zero? ? "" : num
+            num.zero? ? '' : num
           end
 
           def stat_header(stat_name)
-            if(display_stat?(stat_name))
-              "<th>" + stat_name.to_s.gsub(/_/,' ').capitalize + "</th>"
-            end
+            '<th>' + stat_name.to_s.gsub(/_/, ' ').capitalize + '</th>' if display_stat?(stat_name)
           end
 
           def display_stat(stat, stat_name, format)
-            if(display_stat?(stat_name))
-              formatted_stat = self.send(format, stat.send(stat_name))
+            if display_stat?(stat_name)
+              formatted_stat = send(format, stat.send(stat_name))
               "<td>#{formatted_stat}</td>"
             end
           end
 
           def check_or_cross_stat(value)
-            value ? "&#x2713;" : "&#x2717;"
+            value ? '&#x2713;' : '&#x2717;'
           end
         end
 
@@ -59,7 +59,7 @@ module Resque
             # We have little choice in using this funky name - Resque
             # already has a "Stats" tab, and it doesn't like
             # tab names with spaces in it (it translates the url as job%20stats)
-            app.tabs << "Job_Stats"
+            app.tabs << 'Job_Stats'
 
             app.get '/job_history/:job_class' do
               @job_class = Resque::Plugins::JobStats.measured_jobs.find { |j| j.to_s == params[:job_class] }
@@ -70,7 +70,7 @@ module Resque
               @limit = 100
               @limit = params[:limit].to_i if params[:limit]
 
-              @histories = @job_class.job_histories(@start,@limit)
+              @histories = @job_class.job_histories(@start, @limit)
               @size = @job_class.histories_recorded
 
               erb(File.read(File.join(VIEW_PATH, 'job_histories.erb')))
