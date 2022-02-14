@@ -1,35 +1,35 @@
+# frozen_string_literal: true
+
 require 'time'
 
 module Resque
   module Plugins
     module JobStats
-
       # Extend your job with this module to track how many
       # jobs are performed over a period of time
       module Timeseries
-
         module Common
           # A timestamp rounded to the lowest minute
           def timestamp
             time = Time.now.utc
-            Time.at(time.to_i - time.sec).utc   # to_i removes usecs
+            Time.at(time.to_i - time.sec).utc # to_i removes usecs
           end
 
           private
 
-          TIME_FORMAT = {:minutes => "%d:%H:%M", :hours => "%d:%H"}
-          FACTOR = {:minutes => 1, :hours => 60}
+          TIME_FORMAT = { minutes: '%d:%H:%M', hours: '%d:%H' }.freeze
+          FACTOR = { minutes: 1, hours: 60 }.freeze
 
           def range(sample_size, time_unit, end_time) # :nodoc:
-            (0..sample_size).map { |n| end_time - (n * 60 * FACTOR[time_unit])}
+            (0..sample_size).map { |n| end_time - (n * 60 * FACTOR[time_unit]) }
           end
 
           def timeseries_data(type, sample_size, time_unit) # :nodoc:
             timeseries_range = range(sample_size, time_unit, timestamp)
-            timeseries_keys = timeseries_range.map { |time| jobs_timeseries_key(type, time, time_unit)}
-            timeseries_data = Resque.redis.mget(*(timeseries_keys))
+            timeseries_keys = timeseries_range.map { |time| jobs_timeseries_key(type, time, time_unit) }
+            timeseries_data = Resque.redis.mget(*timeseries_keys)
 
-            return Hash[(0..sample_size).map { |i| [timeseries_range[i], timeseries_data[i].to_i]}]
+            Hash[(0..sample_size).map { |i| [timeseries_range[i], timeseries_data[i].to_i] }]
           end
 
           def jobs_timeseries_key(type, key_time, time_unit) # :nodoc:
@@ -37,7 +37,7 @@ module Resque
           end
 
           def prefix # :nodoc:
-            "stats:jobs:#{self.name}:timeseries"
+            "stats:jobs:#{name}:timeseries"
           end
 
           def incr_timeseries(type) # :nodoc:
@@ -60,7 +60,7 @@ module Resque::Plugins::JobStats::Timeseries::Enqueued
   include Resque::Plugins::JobStats::Timeseries::Common
 
   # Increments the enqueued count for the timestamp when job is queued
-  def after_enqueue_job_stats_timeseries(*args)
+  def after_enqueue_job_stats_timeseries(*_args)
     incr_timeseries(:enqueued)
   end
 
@@ -79,7 +79,7 @@ module Resque::Plugins::JobStats::Timeseries::Performed
   include Resque::Plugins::JobStats::Timeseries::Common
 
   # Increments the performed count for the timestamp when job is complete
-  def after_perform_job_stats_timeseries(*args)
+  def after_perform_job_stats_timeseries(*_args)
     incr_timeseries(:performed)
   end
 
