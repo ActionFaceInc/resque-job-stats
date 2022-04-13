@@ -8,6 +8,8 @@ module Resque
       module Server
         VIEW_PATH = File.join(File.dirname(__FILE__), 'server', 'views')
 
+        set :views,  VIEW_PATH
+
         def job_stats_to_display
           @job_stats_to_display ||= Resque::Plugins::JobStats::Statistic::DEFAULT_STATS
         end
